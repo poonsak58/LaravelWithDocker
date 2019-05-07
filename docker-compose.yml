@@ -6,9 +6,25 @@ services:
       - .:/app
     command: [
       'bash', '-c',
-      'composer install'
+      'composer install &&
+      if [[ -f /app/.env ]]; then 
+        echo ".env file already exists";
+      else 
+        cp /app/.env.sample /app/.env && php artisan key:generate; 
+      fi
+      '
     ]
 
+  node:
+    image: node
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: [
+      'bash', '-c',
+      "npm install && npm run watch"
+    ]
+  
   nginx:
     image: nginx
     volumes:
@@ -17,6 +33,8 @@ services:
     depends_on:
       - php
       - mariadb
+    networks:
+      - frontend
     ports:
       - 8000:80
 
@@ -25,6 +43,9 @@ services:
     volumes:
       - .dockerconfig/php/conf.d:/user/local/etc/php/conf.d
       - .:/var/www/html
+    networks:
+      - frontend
+      - backend
     expose:
       - 9000
 
@@ -35,7 +56,20 @@ services:
       MYSQL_DATABASE: "moria"
       MYSQL_USER: "johnd"
       MYSQL_PASSWORD: "secret"
+    networks:
+      - backend
     expose:
       - 3306
     ports:
-      - 3306      
+      - 3306:3306
+
+  cacheserver:
+    image: redis
+    networks:
+      - backend
+    expose:
+      - 6379
+  
+networks:
+  frontend:
+  backend:
