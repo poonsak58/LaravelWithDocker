@@ -4,6 +4,7 @@ Sample run laravel with Docker container. such as nginx, php, mariadb, composer,
 Credit : https://we.in.th/docker-laravel-docker-52eb2d039753
 
 `$ docker-compose up`
+
 `$ docker exec laravelwithdocker_php_1 php artisan migrate`
 
 then open http://localhost:8000
